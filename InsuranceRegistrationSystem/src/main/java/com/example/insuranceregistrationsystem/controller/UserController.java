@@ -34,7 +34,7 @@ public class UserController {
     public ResponseEntity<ResponseDTO> addUserDetails(@Valid @RequestBody UserDTO userDTO){
         userDTO.setUserId(userService.idGenerator());
         UserDTO addUser = userService.addUser(userDTO);
-        ResponseDTO responseDTO = new ResponseDTO(addUser, "Adding in Process! Check your Email and enter the OTP number");
+        ResponseDTO responseDTO = new ResponseDTO(addUser, "Sucessfully buy a new Insurance for GIven userDetails");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
@@ -58,6 +58,7 @@ public class UserController {
 
     @PutMapping(value = "/user")
     public ResponseEntity<ResponseDTO> editUserDetails(@Valid @RequestBody UserDTO userDTO){
+        System.out.println(userDTO);
         User editUser = userService.editUser(userDTO.getUserId(),userDTO);
         ResponseDTO responseDTO = new ResponseDTO(editUser,"Sucessfully Updated given Details");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -93,19 +94,6 @@ public class UserController {
         }
     }
 
-    /**************************************************************************************************************************
-     * Ability to Verifing the otp was send user Email.
-     * IF verified added User Details.
-     * @param otp
-     *************************************************************************************************************************/
-
-    @PostMapping("/verifyOTP")
-    public ResponseEntity<ResponseDTO> verifyOTP(@RequestParam(name = "otp") int otp) {
-        userService.verifyOtpNumber(otp);
-        ResponseDTO responseDTO = new ResponseDTO(null, "OTP verified! Sucessfully added User details");
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    }
-
     /****************************************************************************************************************************
      * Ability to reset Password for existing User credentials.
      * @param email
@@ -131,4 +119,5 @@ public class UserController {
         ResponseDTO responseDTO = new ResponseDTO(null, "OTP verified! Sucessfully updated user credentials");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
+
 }

@@ -5,8 +5,10 @@ import com.example.insuranceregistrationsystem.dto.JwtResponse;
 import com.example.insuranceregistrationsystem.dto.ResponseDTO;
 import com.example.insuranceregistrationsystem.dto.UserLoginDTO;
 import com.example.insuranceregistrationsystem.entity.DAOUser;
+import com.example.insuranceregistrationsystem.entity.User;
 import com.example.insuranceregistrationsystem.service.JwtTokenUtil;
 import com.example.insuranceregistrationsystem.service.JwtUserDetailsService;
+import com.example.insuranceregistrationsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    @Autowired
+    private UserService userService;
+
     /***************************************************************************************************************************
      * Ability to verify user credentials.
      * If verified generate one jwtToken and send to the client.
@@ -35,7 +40,8 @@ public class JwtAuthenticationController {
         userDetailsService.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+        User user = userService.getUserDetailsByEmail(userDetails);
+        return ResponseEntity.ok(new JwtResponse(token,user));
     }
 
     /***************************************************************************************************************************
@@ -44,15 +50,21 @@ public class JwtAuthenticationController {
      ***************************************************************************************************************************/
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> registerUser(@RequestBody UserLoginDTO user) {
+    public ResponseEntity<ResponseDTO> registerUser(@RequestBody UserLoginDTO user) {
         DAOUser registerUser = userDetailsService.registerUser(user);
         ResponseDTO responseDTO = new ResponseDTO(registerUser,"Sucessfully OTP send you given Emailid! Please check that!");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestParam int otp) {
-        DAOUser user = userDetailsService.save(otp);
+    /************************************************************************************************************************
+     * Ability to verify the otp and If verifire save User credentials.
+     * @param otp
+     * @return
+     ************************************************************************************************************************/
+
+    @PostMapping(value = "/save")
+    public ResponseEntity<ResponseDTO> saveUser(@RequestBody UserLoginDTO otp) {
+        DAOUser user = userDetailsService.save(otp.getOtp());
         ResponseDTO responseDTO = new ResponseDTO(user,"Sucessfully User credentials added into the Database");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }

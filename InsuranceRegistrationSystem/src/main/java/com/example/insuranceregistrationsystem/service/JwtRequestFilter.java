@@ -5,8 +5,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.example.insuranceregistrationsystem.exception.InsuranceException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +40,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        System.out.println("Hi");
+
         final String requestTokenHeader = request.getHeader("Authorization");
             String username = null;
             String jwtToken = null;
@@ -49,11 +54,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 try {
                     username = jwtTokenUtil.getUsernameFromToken(jwtToken);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Unable to get JWT Token");
+                    throw new InsuranceException("Unable to get JWT Token");
                 } catch (ExpiredJwtException e) {
-                    System.out.println("JWT Token has expired");
+                    throw new InsuranceException("JWT Token has expired");
                 } catch (MalformedJwtException e){
-                    throw new MalformedJwtException("JWT Token Invalid");
+                    throw new InsuranceException("JWT Token Invalid");
+                }catch (SignatureException e){
+                    throw new InsuranceException(e.getMessage());
                 }
             } else {
                 logger.warn("JWT Token does not begin with Bearer String");
@@ -74,10 +81,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     // Spring Security Configurations successfully.
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
-//                    response.addHeader("Access-Control-Allow-Origin", "*");
-//                    response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
-//                    response.addHeader("Access-Control-Expose-Headers", "Access-Control-Allow-Origin, Access-Control-Allow-Credentials, Authorization");
-//                    response.addHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE, PATCH");
                 }
             }
             chain.doFilter(request, response);

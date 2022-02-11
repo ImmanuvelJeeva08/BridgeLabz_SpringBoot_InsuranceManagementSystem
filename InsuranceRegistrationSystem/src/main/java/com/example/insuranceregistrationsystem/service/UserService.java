@@ -9,6 +9,9 @@ import com.example.insuranceregistrationsystem.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -34,8 +37,10 @@ public class UserService implements IUserService{
     @Autowired
     private PasswordEncoder bcryptEncoder;
 
+    @Autowired
+    JavaMailSender javaMailSender;
+
     public static int otpNumber = 0;
-    public static User addUser = null;
     public static DAOUser daoUser= null;
 
     /****************************************************************************************************************************
@@ -47,10 +52,20 @@ public class UserService implements IUserService{
     @Override
     public UserDTO addUser(UserDTO userDTO) {
         userDTO.setRegisterDate(new Date());
-        addUser = modelMapper.map(userDTO, User.class);
-        otpNumber = generateRandomOTP();
-        emailService.sendEmail(userDTO.getEmail(),otpNumber);
-//        emailService.sendEmailwithAttachment(userDTO.getEmail());
+        User addUser = modelMapper.map(userDTO, User.class);
+        userRepository.save(addUser);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("immanuveljeeva2000@gmail.com");
+            message.setTo(userDTO.getEmail());
+            message.setSubject("Sucessfully Registration....");
+            message.setText("New vehicle Insurance activated for given userDetails" +
+                    "contact : 9728172817" + "email   : immankrypc08@gmail.com" + "Address : 7,GandhiStreet, Chennai");
+            message.setSentDate(new Date());
+            javaMailSender.send(message);
+        }catch (Exception e){
+            throw new InsuranceException("Mail was not sent");
+        }
         return userDTO;
     }
 
@@ -71,8 +86,12 @@ public class UserService implements IUserService{
 
     @Override
     public User getUserById(int id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new InsuranceException("Unable to find Requested User detail!"));
+        User user = userRepository.findUserByUserId(id);
+        if(user != null){
+            return user;
+        }else {
+            throw  new InsuranceException("Unable to find Requested User detail!");
+        }
     }
 
     /**************************************************************************************************************************
@@ -101,7 +120,8 @@ public class UserService implements IUserService{
         User editDetails = null;
         if (id > 0){
             editDetails = getUserById(id);
-            String[] ignoreFields = { "id" };
+            editDetails.setDataModifiedDate(new Date());
+            String[] ignoreFields = { "userId","insuranceAmountPerMonth","insuranceYear","vehicleModel","vehicleNo" };
             BeanUtils.copyProperties(userDTO,editDetails,ignoreFields);
             userRepository.save(editDetails);
         }
@@ -125,20 +145,6 @@ public class UserService implements IUserService{
             idGenerator();
         }
         return result;
-    }
-
-    /**************************************************************************************************************************
-     * Verifing the otp number.
-     * @param otp
-     **************************************************************************************************************************/
-
-    @Override
-    public void verifyOtpNumber(int otp) {
-        if(otp == otpNumber){
-            userRepository.save(addUser);
-        }else {
-            throw new InsuranceException("OTP INVALID! Please Enter correct OTP number");
-        }
     }
 
     /**************************************************************************************************************************
@@ -174,6 +180,15 @@ public class UserService implements IUserService{
         }else {
             throw new InsuranceException("OTP invalid! Please Enter Correct OTP Number");
         }
+    }
+
+    @Override
+    public User getUserDetailsByEmail(UserDetails userDetails) {
+        System.out.println("User ="+userDetails.getPassword());
+        DAOUser daoUser = userDao.findDAOUserByUsernameAndPassword(userDetails.getUsername(), userDetails.getPassword());
+        System.out.println("DAO "+daoUser.getEmail());
+        User user = userRepository.findUserByEmail(daoUser.getEmail());
+        return user;
     }
 
 

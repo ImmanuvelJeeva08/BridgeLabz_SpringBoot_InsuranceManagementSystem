@@ -1,5 +1,6 @@
 package com.example.insuranceregistrationsystem.controller;
 
+import com.example.insuranceregistrationsystem.dto.ClaimDTO;
 import com.example.insuranceregistrationsystem.dto.ResponseDTO;
 import com.example.insuranceregistrationsystem.dto.UserDTO;
 import com.example.insuranceregistrationsystem.entity.ClaimEntity;
@@ -21,13 +22,13 @@ public class ClaimInsuranceController {
 
     /**************************************************************************************************************************
      * Ablity to add claimInsurance due to vehicle damage
-     * @param userDTO
+     * @param claimDTO
      * @return adduser
      **************************************************************************************************************************/
 
     @PostMapping(value = "/claimInsurance")
-    public ResponseEntity<ResponseDTO> addClaimDetails(@RequestBody UserDTO userDTO){
-        ClaimEntity addUser = insuranceClaimService.claimInsurance(userDTO);
+    public ResponseEntity<ResponseDTO> addClaimDetails(@RequestBody ClaimDTO claimDTO){
+        ClaimEntity addUser = insuranceClaimService.claimInsurance(claimDTO);
         ResponseDTO responseDTO = new ResponseDTO(addUser, "Insurance was sucessfully Claimed");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
