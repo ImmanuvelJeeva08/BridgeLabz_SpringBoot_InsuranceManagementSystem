@@ -15,13 +15,12 @@ public class ClaimEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
 
-    @ElementCollection
-    private List<String> base64image;
-
-    @ElementCollection
-    private List<String> filepath;
-
+    private String base64image;
+    private String filepath;
     private int totalAmount;
     private Date claimDate;
-    private String status = "Not Paid";
+    private String reason;
+    private String bill;
+    private String cheque;
+    private String status = "Not Claimed";
 }

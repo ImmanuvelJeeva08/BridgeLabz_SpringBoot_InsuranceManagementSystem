@@ -2,6 +2,7 @@ package com.example.insuranceregistrationsystem.controller;
 
 import com.example.insuranceregistrationsystem.dto.ResponseDTO;
 import com.example.insuranceregistrationsystem.dto.UserDTO;
+import com.example.insuranceregistrationsystem.dto.UserLoginDTO;
 import com.example.insuranceregistrationsystem.entity.User;
 import com.example.insuranceregistrationsystem.exception.InsuranceException;
 import com.example.insuranceregistrationsystem.service.InsuranceService;
@@ -117,6 +118,13 @@ public class UserController {
     public ResponseEntity<ResponseDTO> changePassword(@RequestParam String password,@RequestParam int otp) {
         userService.passwordChange(otp, password);
         ResponseDTO responseDTO = new ResponseDTO(null, "OTP verified! Sucessfully updated user credentials");
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @PostMapping("/otp")
+    public ResponseEntity<ResponseDTO> updateUser (@RequestBody UserLoginDTO userLoginDTO) {
+        User updatedUser =userService.editUserOTP(userLoginDTO.getOtp());
+        ResponseDTO responseDTO = new ResponseDTO(updatedUser, "OTP verified! Sucessfully updated user details");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 

@@ -38,6 +38,9 @@ public class UserDTO {
     @NotBlank(message = "vehicleModel cannot be empty")
     private String vehicleModel;
 
+    @NotBlank(message = "vehicleType cannot be empty")
+    private String vehicleType;
+
     @NotBlank(message = "vehicleNo cannot be empty")
     private String vehicleNo;
 

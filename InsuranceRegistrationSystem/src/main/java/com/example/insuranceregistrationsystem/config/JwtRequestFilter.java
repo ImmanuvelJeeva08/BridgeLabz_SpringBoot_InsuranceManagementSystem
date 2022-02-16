@@ -1,4 +1,4 @@
-package com.example.insuranceregistrationsystem.service;
+package com.example.insuranceregistrationsystem.config;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.example.insuranceregistrationsystem.exception.InsuranceException;
+import com.example.insuranceregistrationsystem.service.JwtTokenUtil;
+import com.example.insuranceregistrationsystem.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -39,8 +41,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-
-        System.out.println("Hi");
 
         final String requestTokenHeader = request.getHeader("Authorization");
             String username = null;

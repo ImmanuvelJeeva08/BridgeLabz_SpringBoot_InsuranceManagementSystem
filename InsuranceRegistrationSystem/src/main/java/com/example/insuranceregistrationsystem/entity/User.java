@@ -21,6 +21,7 @@ public class User {
     private int insuranceAmountPerMonth;
     private int insuranceYear;
     private String vehicleModel;
+    private String vehicleType;
     private String vehicleNo;
     private Date registerDate;
     private Date dataModifiedDate;

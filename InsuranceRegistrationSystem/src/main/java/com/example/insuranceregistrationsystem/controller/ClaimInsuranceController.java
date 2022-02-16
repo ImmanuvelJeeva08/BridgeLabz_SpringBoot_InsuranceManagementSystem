@@ -2,7 +2,6 @@ package com.example.insuranceregistrationsystem.controller;
 
 import com.example.insuranceregistrationsystem.dto.ClaimDTO;
 import com.example.insuranceregistrationsystem.dto.ResponseDTO;
-import com.example.insuranceregistrationsystem.dto.UserDTO;
 import com.example.insuranceregistrationsystem.entity.ClaimEntity;
 import com.example.insuranceregistrationsystem.service.InsuranceClaimService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ public class ClaimInsuranceController {
 
     @PostMapping(value = "/claimInsurance")
     public ResponseEntity<ResponseDTO> addClaimDetails(@RequestBody ClaimDTO claimDTO){
+        System.out.println(claimDTO);
         ClaimEntity addUser = insuranceClaimService.claimInsurance(claimDTO);
         ResponseDTO responseDTO = new ResponseDTO(addUser, "Insurance was sucessfully Claimed");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);

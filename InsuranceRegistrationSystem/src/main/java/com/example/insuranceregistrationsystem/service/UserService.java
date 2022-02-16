@@ -4,6 +4,7 @@ import com.example.insuranceregistrationsystem.dto.UserDTO;
 import com.example.insuranceregistrationsystem.entity.DAOUser;
 import com.example.insuranceregistrationsystem.entity.User;
 import com.example.insuranceregistrationsystem.exception.InsuranceException;
+import com.example.insuranceregistrationsystem.repository.InsuranceRepository;
 import com.example.insuranceregistrationsystem.repository.UserDao;
 import com.example.insuranceregistrationsystem.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -26,6 +27,9 @@ public class UserService implements IUserService{
     private UserRepository userRepository;
 
     @Autowired
+    private InsuranceRepository insuranceRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
@@ -42,6 +46,7 @@ public class UserService implements IUserService{
 
     public static int otpNumber = 0;
     public static DAOUser daoUser= null;
+    public static User editUser = null;
 
     /****************************************************************************************************************************
      * Ability to add a new User details in database.
@@ -52,6 +57,7 @@ public class UserService implements IUserService{
     @Override
     public UserDTO addUser(UserDTO userDTO) {
         userDTO.setRegisterDate(new Date());
+        userDTO.setInsurance(insuranceRepository.findByInsuranceId(932));
         User addUser = modelMapper.map(userDTO, User.class);
         userRepository.save(addUser);
         try {
@@ -59,8 +65,8 @@ public class UserService implements IUserService{
             message.setFrom("immanuveljeeva2000@gmail.com");
             message.setTo(userDTO.getEmail());
             message.setSubject("Sucessfully Registration....");
-            message.setText("New vehicle Insurance activated for given userDetails" +
-                    "contact : 9728172817" + "email   : immankrypc08@gmail.com" + "Address : 7,GandhiStreet, Chennai");
+            message.setText("New vehicle Insurance activated for given userDetails\n"  +
+                    "contact : 9728172817\n" + "email   : immankrypc08@gmail.com\n" + "Address : 7,GandhiStreet, Chennai\n");
             message.setSentDate(new Date());
             javaMailSender.send(message);
         }catch (Exception e){
@@ -96,14 +102,17 @@ public class UserService implements IUserService{
 
     /**************************************************************************************************************************
      * Ability to delete the User records in database by userId.
-     * @param id
+     * @param userId
      **************************************************************************************************************************/
 
     @Override
-    public void deleteUserById(int id) {
-        if(id > 0) {
-            User deleteInsurance = getUserById(id);
-            userRepository.delete(deleteInsurance);
+    public void deleteUserById(int userId) {
+        if(userId > 0) {
+            System.out.println("ID = "+userId);
+//            User deleteInsurance = getUserById(userId);
+//            System.out.println(deleteInsurance);
+//            userRepository.delete(deleteInsurance);
+            userRepository.deleteByUserId(userId);
         }
     }
 
@@ -120,10 +129,17 @@ public class UserService implements IUserService{
         User editDetails = null;
         if (id > 0){
             editDetails = getUserById(id);
+            System.out.println("Edit Details = "+editDetails);
             editDetails.setDataModifiedDate(new Date());
-            String[] ignoreFields = { "userId","insuranceAmountPerMonth","insuranceYear","vehicleModel","vehicleNo" };
+            String[] ignoreFields = { "userId","insuranceAmountPerMonth","insuranceYear","vehicleModel","vehicleNo", "vehicleType", "registerDate", "insurance" };
             BeanUtils.copyProperties(userDTO,editDetails,ignoreFields);
-            userRepository.save(editDetails);
+            editUser = editDetails;
+            otpNumber = generateRandomOTP();
+            editUser.setDataModifiedDate(new Date());
+            String subject = "Email Verification ....";
+            String text    = "Verification code : " + otpNumber;
+            System.out.println("Edit User = "+editUser);
+            emailService.sendEmail(editDetails.getEmail(), subject, text);
         }
         return editDetails;
     }
@@ -158,7 +174,9 @@ public class UserService implements IUserService{
         daoUser = userDao.findByEmail(email);
         if(daoUser != null) {
             otpNumber = generateRandomOTP();
-            emailService.sendEmail(email, otpNumber);
+            String subject = "Email Verification ....";
+            String text    = "Verification code : " + otpNumber;
+            emailService.sendEmail(email, subject, text);
         }else {
             throw new InsuranceException("Email Invalid! Please correct valid emailId");
         }
@@ -204,5 +222,16 @@ public class UserService implements IUserService{
         int result = rn.nextInt(max - min + 1) + min;
         System.out.println("OTP = "+result);
         return result;
+    }
+
+    public User editUserOTP(int otp){
+        if(otp == otpNumber){
+            System.out.println("edit user ID = "+ editUser.getUserId() );
+            deleteUserById(editUser.getUserId());
+            userRepository.save(editUser);
+            return editUser;
+        }else {
+            throw new InsuranceException("OTP Invalid! Please Enter Correct Number");
+        }
     }
 }

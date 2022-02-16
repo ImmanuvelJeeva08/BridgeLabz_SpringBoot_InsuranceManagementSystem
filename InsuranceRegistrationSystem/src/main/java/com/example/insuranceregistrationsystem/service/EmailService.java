@@ -19,16 +19,17 @@ public class EmailService {
     /********************************************************************************************************************************
      * Ability to send a otpNumber to given emailId for emailVerification
      * @param mail
-     * @param otpNumber
+     * @param subject
+     * @param text
      *******************************************************************************************************************************/
 
-    public void sendEmail(String mail, int otpNumber) {
+    public void sendEmail(String mail, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("immanuveljeeva2000@gmail.com");
             message.setTo(mail);
-            message.setSubject("Email Verification ....");
-            message.setText("Verification code : " + otpNumber);
+            message.setSubject(subject);
+            message.setText(text);
             message.setSentDate(new Date());
             javaMailSender.send(message);
         }catch (Exception e){

@@ -91,7 +91,9 @@ public class JwtUserDetailsService implements UserDetailsService, Authentication
         newUser.setEmail(user.getEmail());
         newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
         otpNumber = userService.generateRandomOTP();
-        emailService.sendEmail(newUser.getEmail(),otpNumber);
+        String subject = "Email Verification ....";
+        String text    = "Verification code : " + otpNumber;
+        emailService.sendEmail(newUser.getEmail(),subject,text);
         return newUser;
     }
 }

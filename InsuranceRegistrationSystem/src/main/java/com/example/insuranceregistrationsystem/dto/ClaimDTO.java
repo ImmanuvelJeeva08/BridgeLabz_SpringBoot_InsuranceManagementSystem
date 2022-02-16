@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,9 +12,13 @@ import java.util.List;
 public class ClaimDTO{
     private int id;
     private User user;
-    private List<String> base64image;
-    private List<String> filepath;
+    private String base64image;
+    private String filepath;
     private int totalAmount;
+    private String reason;
     private Date claimDate;
-    private String status = "Not Paid";
+    private String bill;
+    private String cheque;
+    private String status = "Not Claimed";
+
 }

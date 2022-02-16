@@ -48,10 +48,17 @@ public class InsuranceClaimService implements IInsuranceClaimService {
             claimEntity.setTotalAmount(amount);
             imageProcess(claimDTO);
             claimEntity.setFilepath(claimDTO.getFilepath());
+            claimEntity.setBill(claimDTO.getBill());
+            claimEntity.setCheque(claimDTO.getCheque());
             claimEntity.setBase64image(null);
-            claimEntity.setStatus("Paid");
+            claimEntity.setReason(claimDTO.getReason());
+            claimEntity.setStatus("ON PROCESS");
             System.out.println(claimDTO);
             claimRepository.save(claimEntity);
+            String subject = "Your claimInsurance Application is In process!!";
+            String text = " You will get response In 24hrs - 48hrs\n" + " vehicleInsurance claim is in Process\n"  +
+                    "contact : 9728172817\n" + "email   : immankrypc08@gmail.com\n" + "Address : 7,GandhiStreet, Chennai\n";
+            emailService.sendEmail(claimEntity.getUser().getEmail(),subject,text);
             return claimEntity;
         }else {
             throw new InsuranceException("User not Found! Enter Correct Details");
@@ -89,12 +96,9 @@ public class InsuranceClaimService implements IInsuranceClaimService {
     }
 
     private void imageProcess(ClaimDTO claimDTO) {
-        String[] strings = null;
         String extensions = "";
-        List<String> filePath = null;
 
-        for (int i=0; i<claimDTO.getBase64image().size() ; i++) {
-            strings = claimDTO.getBase64image().get(i).split(",");
+        String[] strings = claimDTO.getBase64image().split(",");
 
             switch (strings[0]) {
                 case "data:image/jpeg;base64":
@@ -107,7 +111,7 @@ public class InsuranceClaimService implements IInsuranceClaimService {
                     extensions = ".jpg";
                     break;
                 default:
-                    throw new InsuranceException("Please upload correct image Format ! jpeg,jpg,tiff only Allowed");
+                    throw new InsuranceException("Please upload correct image Format ! jpeg,jpg,png only Allowed");
             }
 
             byte[] byteImage = DatatypeConverter.parseBase64Binary(strings[1]);
@@ -144,13 +148,10 @@ public class InsuranceClaimService implements IInsuranceClaimService {
             try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(newImage))) {
                 outputStream.write(byteImage);
                 outputStream.close();
-                filePath.add(i,path);
+                claimDTO.setFilepath(path);
             } catch (Exception e) {
                 throw new InsuranceException("Error occured in writing byteData in the File");
             }
-        }
-
-        claimDTO.setFilepath(filePath);
 
     }
 
