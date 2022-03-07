@@ -14,7 +14,8 @@ public interface IUserService {
     public User editUser(int id, UserDTO userDTO);
     public int idGenerator();
     public void resetPassword(String email);
-    public void passwordChange(int otp,String password);
-
+    public void otpVerify(int otp);
     User getUserDetailsByEmail(UserDetails userDetails);
+    void resendOTP(String email);
+    public void passwordChange(String password);
 }

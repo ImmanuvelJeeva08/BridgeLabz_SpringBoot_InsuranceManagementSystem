@@ -55,10 +55,10 @@ public class InsuranceClaimService implements IInsuranceClaimService {
             claimEntity.setStatus("ON PROCESS");
             System.out.println(claimDTO);
             claimRepository.save(claimEntity);
-            String subject = "Your claimInsurance Application is In process!!";
-            String text = " You will get response In 24hrs - 48hrs\n" + " vehicleInsurance claim is in Process\n"  +
-                    "contact : 9728172817\n" + "email   : immankrypc08@gmail.com\n" + "Address : 7,GandhiStreet, Chennai\n";
-            emailService.sendEmail(claimEntity.getUser().getEmail(),subject,text);
+//            String subject = "Your claimInsurance Application is In process!!";
+//            String text = " You will get response In 24hrs - 48hrs\n" + " vehicleInsurance claim is in Process\n"  +
+//                    "contact : 9728172817\n" + "email   : immankrypc08@gmail.com\n" + "Address : 7,GandhiStreet, Chennai\n";
+//            emailService.sendEmail(claimEntity.getUser().getEmail(),subject,text);
             return claimEntity;
         }else {
             throw new InsuranceException("User not Found! Enter Correct Details");

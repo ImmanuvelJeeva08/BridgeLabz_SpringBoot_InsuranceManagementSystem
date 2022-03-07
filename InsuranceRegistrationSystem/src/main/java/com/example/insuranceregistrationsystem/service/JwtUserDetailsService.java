@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
 import java.util.ArrayList;
 
 @Service
@@ -90,10 +91,16 @@ public class JwtUserDetailsService implements UserDetailsService, Authentication
         newUser.setUsername(user.getUsername());
         newUser.setEmail(user.getEmail());
         newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-        otpNumber = userService.generateRandomOTP();
         String subject = "Email Verification ....";
-        String text    = "Verification code : " + otpNumber;
-        emailService.sendEmail(newUser.getEmail(),subject,text);
+        String text = "Click the Below Link to activate Your Account\n" ;
+        emailService.sendLink(newUser.getEmail(),subject,text);
         return newUser;
+    }
+
+    public ModelAndView activateAccount(){
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("sucessful");
+        userDao.save(newUser);
+        return modelAndView;
     }
 }

@@ -3,6 +3,7 @@ package com.example.insuranceregistrationsystem.controller;
 import com.example.insuranceregistrationsystem.dto.ClaimDTO;
 import com.example.insuranceregistrationsystem.dto.ResponseDTO;
 import com.example.insuranceregistrationsystem.entity.ClaimEntity;
+import com.example.insuranceregistrationsystem.repository.ClaimRepository;
 import com.example.insuranceregistrationsystem.service.InsuranceClaimService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,9 @@ public class ClaimInsuranceController {
 
     @Autowired
     InsuranceClaimService insuranceClaimService;
+
+    @Autowired
+    ClaimRepository claimRepository;
 
     /**************************************************************************************************************************
      * Ablity to add claimInsurance due to vehicle damage
@@ -43,5 +47,19 @@ public class ClaimInsuranceController {
         List<ClaimEntity> userDTOList = insuranceClaimService.getAllClaimedInsuranceDetails();
         ResponseDTO responseDTO = new ResponseDTO(userDTOList,"Fetched "+userDTOList.size()+"Claimed User Details");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    /***************************************************************************************************************************
+     * Ability to fetch claimed Insurance Details by Email
+     * @param email
+     * @return getclaimedDetails
+     ***************************************************************************************************************************/
+
+    @GetMapping(value = "/claimedById")
+    public ResponseEntity<ResponseDTO> getClaimedDetailsById(@RequestParam String email){
+       ClaimEntity getclaimedDetails =  claimRepository.findClaimEntityByUser_Email(email);
+        System.out.println(getclaimedDetails);
+       ResponseDTO responseDTO = new ResponseDTO(getclaimedDetails,"Sucessfully fetched claimed details by ID");
+       return new ResponseEntity<>(responseDTO,HttpStatus.OK);
     }
 }

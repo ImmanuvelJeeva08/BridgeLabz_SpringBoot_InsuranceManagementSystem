@@ -16,26 +16,8 @@ public class InsuranceRegistrationSystemApplication {
         return new ModelMapper();
     }
 
-//    ConnectionFactory connectionFactory() {
-//        ConnectionFactory connectionFactory = new PooledConnectionFactory("tcp://localhost:61616");
-//        return connectionFactory;
-//    }
-//
-//    // custom JmsTemplate
-//    @Bean
-//    public JmsTemplate jmsTemplate() {
-//        JmsTemplate template = new JmsTemplate(connectionFactory());
-//        template.setMessageConverter(MessageConverters.defaultMessageConverter());
-//        return template;
-//    }
-
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(InsuranceRegistrationSystemApplication.class, args);
 
     }
-//
-//    @Override
-//    public void run(String... args) throws Exception {
-//
-//    }
 }

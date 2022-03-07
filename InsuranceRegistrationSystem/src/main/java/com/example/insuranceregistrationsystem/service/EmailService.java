@@ -6,7 +6,14 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.File;
 import java.util.Date;
 
@@ -15,6 +22,9 @@ public class EmailService {
 
     @Autowired
     JavaMailSender javaMailSender;
+
+    public static String url = "http://localhost:8080/activate";
+    String content="<a href='"+url+"'>"+"Click Me to activate Your Account"+"</a>";
 
     /********************************************************************************************************************************
      * Ability to send a otpNumber to given emailId for emailVerification
@@ -62,6 +72,34 @@ public class EmailService {
 
         } catch (Exception e) {
             throw new InsuranceException("Mail was not sent with Attachment");
+        }
+    }
+
+    public void sendLink(String emailId, String subject, String text){
+        try {
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            message.setFrom("immanuveljeeva2000@gmail.com");
+            message.addRecipient(Message.RecipientType.TO,new InternetAddress(emailId));
+
+            message.setSubject(subject);
+            // Create the message part
+            MimeBodyPart messageBodyPart = new MimeBodyPart();
+
+            // Fill the message
+            messageBodyPart.setText(text + "\n" +content,"UTF-8","html");
+
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+
+            // Put parts in message
+            message.setContent(multipart);
+
+            // Send the message
+            javaMailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new InsuranceException("Message Not sent");
         }
     }
 }

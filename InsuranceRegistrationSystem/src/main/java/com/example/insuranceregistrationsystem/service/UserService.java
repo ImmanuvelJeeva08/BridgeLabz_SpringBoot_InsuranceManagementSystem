@@ -10,7 +10,6 @@ import com.example.insuranceregistrationsystem.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,10 +41,11 @@ public class UserService implements IUserService{
     private PasswordEncoder bcryptEncoder;
 
     @Autowired
-    JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
 
     public static int otpNumber = 0;
     public static DAOUser daoUser= null;
+    public static User newUser = null;
     public static User editUser = null;
 
     /****************************************************************************************************************************
@@ -60,18 +60,9 @@ public class UserService implements IUserService{
         userDTO.setInsurance(insuranceRepository.findByInsuranceId(932));
         User addUser = modelMapper.map(userDTO, User.class);
         userRepository.save(addUser);
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("immanuveljeeva2000@gmail.com");
-            message.setTo(userDTO.getEmail());
-            message.setSubject("Sucessfully Registration....");
-            message.setText("New vehicle Insurance activated for given userDetails\n"  +
-                    "contact : 9728172817\n" + "email   : immankrypc08@gmail.com\n" + "Address : 7,GandhiStreet, Chennai\n");
-            message.setSentDate(new Date());
-            javaMailSender.send(message);
-        }catch (Exception e){
-            throw new InsuranceException("Mail was not sent");
-        }
+        String subject = "Sucessfully Processed....";
+        String text = "Insurance was sucessfully bought for given UserDetails\n" + "\nThanking You!" ;
+        emailService.sendEmail(userDTO.getEmail(),subject,text);
         return userDTO;
     }
 
@@ -186,18 +177,22 @@ public class UserService implements IUserService{
      * Ability to verify the OTP number.
      * If verified , update the new User password to database.
      * @param otp
-     * @param password
      **************************************************************************************************************************/
 
     @Override
-    public void passwordChange(int otp, String password) {
+    public void otpVerify(int otp) {
         if(otpNumber == otp){
-            System.out.println("Updated Password = "+password);
-            daoUser.setPassword(bcryptEncoder.encode(password));
-            userDao.save(daoUser);
+            System.out.println("OTP verified = "+otp);
         }else {
             throw new InsuranceException("OTP invalid! Please Enter Correct OTP Number");
         }
+    }
+
+    @Override
+    public void passwordChange(String password){
+        System.out.println("Updated Password = "+password);
+        daoUser.setPassword(bcryptEncoder.encode(password));
+        userDao.save(daoUser);
     }
 
     @Override
@@ -207,6 +202,14 @@ public class UserService implements IUserService{
         System.out.println("DAO "+daoUser.getEmail());
         User user = userRepository.findUserByEmail(daoUser.getEmail());
         return user;
+    }
+
+    @Override
+    public void resendOTP(String email) {
+        otpNumber = generateRandomOTP();
+        String subject = "Email Verification ....";
+        String text    = "Verification code : " + otpNumber;
+        emailService.sendEmail(email,subject,text);
     }
 
 

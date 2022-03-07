@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class UserController {
     public ResponseEntity<ResponseDTO> addUserDetails(@Valid @RequestBody UserDTO userDTO){
         userDTO.setUserId(userService.idGenerator());
         UserDTO addUser = userService.addUser(userDTO);
-        ResponseDTO responseDTO = new ResponseDTO(addUser, "Sucessfully buy a new Insurance for GIven userDetails");
+        ResponseDTO responseDTO = new ResponseDTO(addUser, "Sucessfully send account activation Link to your EmailId");
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
@@ -93,32 +94,6 @@ public class UserController {
         }catch (InsuranceException e){
             throw new InsuranceException(e.getMessage());
         }
-    }
-
-    /****************************************************************************************************************************
-     * Ability to reset Password for existing User credentials.
-     * @param email
-     ***************************************************************************************************************************/
-
-    @PostMapping("/resetPassword")
-    public ResponseEntity<ResponseDTO> resetPassword(@RequestParam(name = "email") String email) {
-        userService.resetPassword(email);
-        ResponseDTO responseDTO = new ResponseDTO(null, "Email verified! Sucessfully send an OTP to correspondent your EmailId");
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    }
-
-    /***************************************************************************************************************************
-     * Ability to verified the OTP and if verified,update the User credencials in database.
-     * @param password
-     * @param otp
-     * @return
-     **************************************************************************************************************************/
-
-    @PostMapping("/changePassword")
-    public ResponseEntity<ResponseDTO> changePassword(@RequestParam String password,@RequestParam int otp) {
-        userService.passwordChange(otp, password);
-        ResponseDTO responseDTO = new ResponseDTO(null, "OTP verified! Sucessfully updated user credentials");
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     @PostMapping("/otp")
