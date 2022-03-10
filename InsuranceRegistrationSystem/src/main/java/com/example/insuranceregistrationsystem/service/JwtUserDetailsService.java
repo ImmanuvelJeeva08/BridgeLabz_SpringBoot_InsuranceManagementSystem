@@ -31,9 +31,6 @@ public class JwtUserDetailsService implements UserDetailsService, Authentication
     private InsuranceService insuranceService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -57,20 +54,6 @@ public class JwtUserDetailsService implements UserDetailsService, Authentication
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
         return new User(user.getUsername(), user.getPassword(), new ArrayList<>());
-    }
-
-    /*************************************************************************************************************************
-     * Ability to add new User credential to database if OTP verified.
-     * @param otp
-     ************************************************************************************************************************/
-
-    public DAOUser save(int otp) {
-        if(otp == otpNumber){
-            userDao.save(newUser);
-            return newUser;
-        }else {
-            throw new InsuranceException("OTP invalid! Please Enter valid OTP NUMBER");
-        }
     }
 
     //Ability to authenticate username and password.
